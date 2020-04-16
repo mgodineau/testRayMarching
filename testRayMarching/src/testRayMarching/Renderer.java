@@ -24,9 +24,10 @@ public class Renderer {
 	
 	public void renderWorld( World world ) {
 		
-		float tanX = (float) Math.tan( world.mainCamera.fov);
+		float tanX = (float) Math.tan( world.mainCamera.getFov());
 		float tanY = tanX / renderImg.getWidth() * renderImg.getHeight();
 		
+		Camera cam = world.mainCamera;
 		
 		for( int x=0; x<renderImg.getWidth(); x++ ) {
 			for( int y=0; y<renderImg.getHeight(); y++ ) {
@@ -49,7 +50,7 @@ public class Renderer {
 				float worldDist = world.distToObjects(hit);
 				float camDist = 0;
 				
-				while( worldDist > 0.001f && camDist < 2) {
+				while( worldDist > cam.getMinThreshold() && camDist < cam.getClipFar()) {
 					Vector3f scaledRay = (Vector3f) ray.clone();
 					scaledRay.scale(worldDist);
 					hit.add(scaledRay);
@@ -59,7 +60,14 @@ public class Renderer {
 				if ( camDist > 2 ) {
 					camDist = 2;
 				}
-				Color col = new Color(1-(camDist/2.0f),0,0);
+				
+				Vector3f normal = world.getNormal(hit, cam.getMinThreshold());
+				float lightFactor = normal.dot(world.mainLight);
+				if (lightFactor < 0) {
+					lightFactor = 0;
+				}
+				
+				Color col = new Color(lightFactor, lightFactor, lightFactor);
 				renderImg.setRGB(x, y, col.getRGB() );
 				
 			}//for
@@ -69,10 +77,6 @@ public class Renderer {
 	
 	public Renderer() {
 		renderImg = new BufferedImage(600, 400, BufferedImage.TYPE_INT_RGB);
-//		Graphics graph = renderImg.getGraphics();
-//		graph.setColor(Color.red);
-//		graph.fillRect(0, 0, 600, 400);
-//		graph.dispose();
 	}
 	
 }

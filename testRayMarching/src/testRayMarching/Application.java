@@ -21,8 +21,17 @@ public class Application {
 		world.mainCamera = new Camera();
 		world.mainCamera.position = new Vector3f(0,0,-2);
 		
+		Sphere boule = new Sphere();
+		boule.position = new Vector3f(1,0.1f,0);
+		world.objToShow.add(boule);
+		Sphere grosseBoule = new Sphere();
+		grosseBoule.position = new Vector3f(-1,0.1f,0);
+		grosseBoule.scale = new Vector3f(1.2f, 1.2f, 1.2f);
+		world.objToShow.add(grosseBoule);
+		
+		
 		rend.renderWorld(world);
-		pan.repaint();
+		pan.revalidate();
 		
 	}
 

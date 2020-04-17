@@ -29,6 +29,8 @@ public class Application {
 		grosseBoule.scale = new Vector3f(1.2f, 1.2f, 1.2f);
 		world.objToShow.add(grosseBoule);
 		
+		world.mainLight = new Vector3f(2, 1, -3);
+		world.mainLight.normalize();
 		
 		rend.renderWorld(world);
 		pan.revalidate();

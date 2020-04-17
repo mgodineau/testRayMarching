@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 public class Renderer {
@@ -62,17 +63,37 @@ public class Renderer {
 				}
 				
 				Vector3f normal = world.getNormal(hit, cam.getMinThreshold());
+				
 				float lightFactor = normal.dot(world.mainLight);
 				if (lightFactor < 0) {
 					lightFactor = 0;
 				}
+				ray.scale(-1);
+				Vector3f rayReflect = reflect(ray, normal);
+				rayReflect.scale(-1);
+				float angle = (float) rayReflect.angle(world.mainLight);
+				float maxAngle = ((float)Math.PI) / 12.0f;
+				float specularFactor = 0;
+				if ( angle < maxAngle ) {
+					specularFactor = 1.0f - angle / maxAngle;
+				}
 				
-				Color col = new Color(lightFactor, lightFactor, lightFactor);
-				renderImg.setRGB(x, y, col.getRGB() );
+				Color diffuse = new Color(Math.min(1, lightFactor+specularFactor), specularFactor, specularFactor);
+				renderImg.setRGB(x, y, diffuse.getRGB() );
 				
 			}//for
 		}//for
 	} 
+	
+	
+	private Vector3f reflect( Vector3f v, Vector3f axis ) {
+		Quat4f rotation = new Quat4f(axis.x, axis.y, axis.z, (float) Math.PI);
+		Quat4f vQuat = new Quat4f(v.x, v.y, v.z, 0);
+		vQuat.mul( vQuat, rotation );
+		vQuat.mulInverse(rotation, vQuat);
+		
+		return new Vector3f( vQuat.x, vQuat.y, vQuat.z );
+	}
 	
 	
 	public Renderer() {
